@@ -1,2 +1,2 @@
 # 3js-game-project
-Project for Uni :)
+Project to pass WSZIB labolatory 3 JS :)
