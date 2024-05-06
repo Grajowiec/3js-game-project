@@ -22,5 +22,5 @@ function animate() {
 
 	renderer.render( scene, camera );
 }
-DocumentFragment,ozdfjgoifzhsdgiuzfehiufdzxh8ugyfdhdzhgf8ygfzde
+
 animate();
