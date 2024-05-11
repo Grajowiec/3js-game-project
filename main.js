@@ -7,10 +7,35 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
+const geometry_barrier = new THREE.BoxGeometry(1.5,0.5);
+const material_barrier = new THREE.MeshBasicMaterial( { color: 0xaa0e3b } );
+const barrier = new THREE.Mesh( geometry_barrier, material_barrier );
+
+scene.add( barrier );
+barrier.position.x = -5;
+barrier.position.y = -1.1;
+
+const barrier2 = new THREE.Mesh( geometry_barrier, material_barrier );
+scene.add( barrier2 );
+barrier2.position.x = -1.7;
+barrier2.position.y = -1.1;
+
+const barrier3 = new THREE.Mesh( geometry_barrier, material_barrier );
+scene.add( barrier3 );
+barrier3.position.x =  1.7;
+barrier3.position.y = -1.1;
+
+const barrier4 = new THREE.Mesh( geometry_barrier, material_barrier );
+scene.add( barrier4 );
+barrier4.position.x =  5;
+barrier4.position.y = -1.1;
+//^^ creating and adding barriers
+
 const geometry_player = new THREE.BoxGeometry();
 const material_player = new THREE.MeshBasicMaterial( { color: 0x0000FF } );
 const player = new THREE.Mesh( geometry_player, material_player );
 scene.add( player );
+player.position.y = -2.85;
 //^^ creates and spawns player ship
 
 const geometry_bullet = new THREE.SphereGeometry(0.12);
@@ -34,16 +59,16 @@ function key(e) {
 		case 37: // left
 			player.position.x -= 0.1;
 			break;
-		case 38: // up
+/*		case 38: // up
 			player.position.y += 0.1;
 			break;
-		case 39: // right
+*/		case 39: // right
 			player.position.x += 0.1;
 			break;
-		case 40: // down
+/*		case 40: // down
 			player.position.y -= 0.1;
 			break;
-		case 32: //spacebar to shoot
+*/		case 32: //spacebar to shoot
 			shoot();
 			break;
 		default:
