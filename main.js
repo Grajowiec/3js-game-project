@@ -40,18 +40,51 @@ player.position.y = -2.85;
 
 const geometry_bullet = new THREE.SphereGeometry(0.12);
 const material_bullet = new THREE.MeshBasicMaterial( { color: 0xFF0000 } );
-const bullet = new THREE.Mesh(geometry_bullet,material_bullet)
-//^^ Creating bullets
+//const bullet = new THREE.Mesh(geometry_bullet,material_bullet)
+//^^ Bullets properties
 
 const bullets = []; // Stores bullets in an array so it won't disappear
 
+const geometry_enemy = new THREE.BoxGeometry();
+const material_enemy = new THREE.MeshBasicMaterial( { color: 0x00FF00 } );
+const enemy = new THREE.Mesh(geometry_enemy,material_enemy);
+const enemy_speed = 0.05;
+enemy.position.x = 0;
+enemy.position.y = 3;
+scene.add(enemy);
+//^^ Creates and spawns enemy
+
+let enemyDirection = 1; // Enemy movement, 1 for moving right, -1 for moving left
+
 camera.position.z = 5;
 
+function moveEnemy() {
+    enemy.position.x += enemy_speed * enemyDirection;
+    // Check if the enemy reached the left or right boundary
+    if (enemy.position.x >= 5 || enemy.position.x <= -5) {
+        enemyDirection *= -1; // Reverse the direction
+        enemy.position.y -= 0.5; // Move down
+    }
+}
+
 function shoot() {
+	const bullet = new THREE.Mesh(geometry_bullet,material_bullet)
 	bullet.position.x = player.position.x
 	bullet.position.y = player.position.y
 	scene.add( bullet );
 	bullets.push(bullet); // Adds bullet to the array so it won't disappear
+}
+
+function checkBulletEnemyCollision() {
+    bullets.forEach(bullet => {
+        if (bullet.position.distanceTo(enemy.position) < 0.5) { // Adjust collision distance
+            // Remove bullet and enemy from the scene
+            scene.remove(bullet);
+            scene.remove(enemy);
+            // Remove bullet from the bullets array
+            bullets.splice(bullets.indexOf(bullet), 1);
+        }
+    });
 }
 
 function keyboard(e) {
@@ -80,9 +113,13 @@ addEventListener("keyup", keyboard); // Controls
 
 function animate() {
 	requestAnimationFrame( animate );
+
+	moveEnemy();
 	
 	player.rotation.x += 0.01;
 	player.rotation.y += 0.01;
+	
+	checkBulletEnemyCollision();
 
     // Updates bullet positions
     bullets.forEach(bullet => {
