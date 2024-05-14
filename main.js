@@ -7,6 +7,8 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
+camera.position.z = 5;
+
 const geometry_barrier = new THREE.BoxGeometry(1.5,0.5);
 const material_barrier = new THREE.MeshBasicMaterial( { color: 0xaa0e3b } );
 const barrier = new THREE.Mesh( geometry_barrier, material_barrier );
@@ -48,42 +50,69 @@ const bullets = []; // Stores bullets in an array so it won't disappear
 const geometry_enemy = new THREE.BoxGeometry();
 const material_enemy = new THREE.MeshBasicMaterial( { color: 0x00FF00 } );
 const enemy = new THREE.Mesh(geometry_enemy,material_enemy);
-const enemy_speed = 0.05;
+const enemy_speed = 0.1;
 enemy.position.x = 0;
 enemy.position.y = 3;
-scene.add(enemy);
-//^^ Creates and spawns enemy
+//^^  Enemy properties
 
-let enemyDirection = 1; // Enemy movement, 1 for moving right, -1 for moving left
+// Create an array to store enemy instances
+const enemies = [];
 
-camera.position.z = 5;
-
-function moveEnemy() {
-    enemy.position.x += enemy_speed * enemyDirection;
-    // Check if the enemy reached the left or right boundary
-    if (enemy.position.x >= 5 || enemy.position.x <= -5) {
-        enemyDirection *= -1; // Reverse the direction
-        enemy.position.y -= 0.5; // Move down
+// Function to spawn enemies
+function spawnEnemies() {
+    const numEnemies = 3; // Number of enemies to spawn
+    const spacing = 2.5; // Spacing between enemies
+    
+    for (let i = 0; i < numEnemies; i++) {
+        const enemy = new THREE.Mesh(geometry_enemy, material_enemy);
+        enemy.position.x = (i - (numEnemies - 1) / 2) * spacing; // Spread enemies evenly
+        enemy.position.y = 3; // Initial y position
+        scene.add(enemy);
+        enemies.push(enemy);
     }
 }
 
+let enemyDirection = 1; // Enemy movement, 1 for moving right, -1 for moving left
+
+let moveCounter = 0; // Counter to control the enemy movement speed
+
+function moveEnemies() {
+    moveCounter++;
+    if (moveCounter % 30 === 0) { // Update enemy position every 30 frames (adjust for desired speed)
+		enemies.forEach(enemy => {
+			enemy.position.x += enemy_speed * enemyDirection;
+			// Check if the enemy reached the left or right boundary
+			if (enemy.position.x >= 5 || enemy.position.x <= -5) {
+				enemyDirection *= -1; // Reverse the direction
+				enemies.forEach(e => e.position.y -= 0.5); // Move all enemies down
+				}
+			});
+	}
+}
+
+spawnEnemies(); // Call spawnEnemies function to spawn enemies
+
 function shoot() {
 	const bullet = new THREE.Mesh(geometry_bullet,material_bullet)
-	bullet.position.x = player.position.x
-	bullet.position.y = player.position.y
+	bullet.position.x = player.position.x;
+	bullet.position.y = player.position.y;
 	scene.add( bullet );
 	bullets.push(bullet); // Adds bullet to the array so it won't disappear
 }
 
 function checkBulletEnemyCollision() {
     bullets.forEach(bullet => {
-        if (bullet.position.distanceTo(enemy.position) < 0.5) { // Adjust collision distance
-            // Remove bullet and enemy from the scene
-            scene.remove(bullet);
-            scene.remove(enemy);
-            // Remove bullet from the bullets array
-            bullets.splice(bullets.indexOf(bullet), 1);
-        }
+        enemies.forEach(enemy => {
+            if (bullet.position.distanceTo(enemy.position) < 0.9) { // Adjust collision distance
+                // Remove bullet and enemy from the scene
+                scene.remove(bullet);
+                scene.remove(enemy);
+                // Remove bullet from the bullets array
+                bullets.splice(bullets.indexOf(bullet), 1);
+                // Remove enemy from the enemies array
+                enemies.splice(enemies.indexOf(enemy), 1);
+            }
+        });
     });
 }
 
@@ -114,7 +143,7 @@ addEventListener("keyup", keyboard); // Controls
 function animate() {
 	requestAnimationFrame( animate );
 
-	moveEnemy();
+	moveEnemies();
 	
 	player.rotation.x += 0.01;
 	player.rotation.y += 0.01;
