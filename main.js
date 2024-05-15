@@ -7,6 +7,10 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
+//camera.position.set();
+
+//camera.lookAt
+
 camera.position.z = 5;
 
 const geometry_barrier = new THREE.BoxGeometry(1.5,0.5);
