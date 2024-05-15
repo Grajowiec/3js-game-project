@@ -7,11 +7,11 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-//camera.position.set();
+camera.position.set(0,-4,5);
 
-//camera.lookAt
+camera.lookAt(0,0,0)
 
-camera.position.z = 5;
+//camera.position.z = 5;
 
 const geometry_barrier = new THREE.BoxGeometry(1.5,0.5);
 const material_barrier = new THREE.MeshBasicMaterial( { color: 0xaa0e3b } );
@@ -62,18 +62,22 @@ enemy.position.y = 3;
 // Create an array to store enemy instances
 const enemies = [];
 
-// Function to spawn enemies
-function spawnEnemies() {
-    const numEnemies = 3; // Number of enemies to spawn
+// Stores all enemy waves
+const enemyWaves = []; 
+
+// Function to spawn a wave of enemies
+function spawnEnemyWave(numEnemies) {
     const spacing = 2.5; // Spacing between enemies
+    const wave = [];
     
     for (let i = 0; i < numEnemies; i++) {
         const enemy = new THREE.Mesh(geometry_enemy, material_enemy);
         enemy.position.x = (i - (numEnemies - 1) / 2) * spacing; // Spread enemies evenly
         enemy.position.y = 3; // Initial y position
-        scene.add(enemy);
-        enemies.push(enemy);
+        wave.push(enemy);
     }
+    
+    enemyWaves.push(wave); // Add wave to enemy waves queue
 }
 
 let enemyDirection = 1; // Enemy movement, 1 for moving right, -1 for moving left
@@ -83,18 +87,37 @@ let moveCounter = 0; // Counter to control the enemy movement speed
 function moveEnemies() {
     moveCounter++;
     if (moveCounter % 30 === 0) { // Update enemy position every 30 frames (adjust for desired speed)
-		enemies.forEach(enemy => {
-			enemy.position.x += enemy_speed * enemyDirection;
-			// Check if the enemy reached the left or right boundary
-			if (enemy.position.x >= 5 || enemy.position.x <= -5) {
-				enemyDirection *= -1; // Reverse the direction
-				enemies.forEach(e => e.position.y -= 0.5); // Move all enemies down
-				}
-			});
-	}
+        let changeDirection = false;
+        enemies.forEach(enemy => {
+            enemy.position.x += enemy_speed * enemyDirection;
+            // Check if the enemy reached the left or right boundary
+            if (enemy.position.x >= 5 || enemy.position.x <= -5) {
+                changeDirection = true;
+            }
+        });
+
+        if (changeDirection) {
+            enemyDirection *= -1; // Reverse the direction
+            enemies.forEach(enemy => {
+                enemy.position.y -= 0.5; // Move all enemies down
+            });
+        }
+    }
+}
+// Function to check if current wave is defeated
+function checkWaveDefeated() {
+    if (enemies.length === 0 && enemyWaves.length > 0) {
+        // Move next wave into the scene
+        const nextWave = enemyWaves.shift(); // Remove first wave from queue
+        nextWave.forEach(enemy => {
+            scene.add(enemy);
+            enemies.push(enemy);
+        });
+    }
 }
 
-spawnEnemies(); // Call spawnEnemies function to spawn enemies
+// Initial enemy wave
+spawnEnemyWave(4);
 
 function shoot() {
 	const bullet = new THREE.Mesh(geometry_bullet,material_bullet)
@@ -153,19 +176,20 @@ function animate() {
 	player.rotation.y += 0.01;
 	
 	checkBulletEnemyCollision();
+	checkWaveDefeated();
 
     // Updates bullet positions
     bullets.forEach(bullet => {
         bullet.position.y += 0.1; // Bullet speed
 
 		// Checking for collision with barriers
-		const barriers = [barrier, barrier2, barrier3, barrier4];
-		barriers.forEach(barrier => {
-			if (bullet.position.distanceTo(barrier.position) < 0.98) { // Collision distance 
-				scene.remove(bullet);
-				bullets.splice(bullets.indexOf(bullet), 1);
-			}
-		});
+		// const barriers = [barrier, barrier2, barrier3, barrier4];
+		// barriers.forEach(barrier => {
+		// 	if (bullet.position.distanceTo(barrier.position) < 0.98) { // Collision distance 
+		// 		scene.remove(bullet);
+		// 		bullets.splice(bullets.indexOf(bullet), 1);
+		// 	}
+		// });
 
         if (bullet.position.y > 5) { // Removes bullets when they go out of the screen
             scene.remove(bullet);
