@@ -49,7 +49,7 @@ const material_bullet = new THREE.MeshBasicMaterial( { color: 0xFF0000 } );
 //const bullet = new THREE.Mesh(geometry_bullet,material_bullet)
 //^^ Bullets properties
 
-const bullets = []; // Stores bullets in an array so it won't disappear
+const bullets = []; // Stores bullets in an array so they won't disappear
 
 const geometry_enemy = new THREE.BoxGeometry();
 const material_enemy = new THREE.MeshBasicMaterial( { color: 0x00FF00 } );
@@ -58,6 +58,12 @@ const enemy_speed = 0.1;
 enemy.position.x = 0;
 enemy.position.y = 3;
 //^^  Enemy properties
+
+const geometry_enemy_bullet = new THREE.SphereGeometry(0.12);
+const material_enemy_bullet = new THREE.MeshBasicMaterial({ color: 0x00FF00 });
+//^^ Enemy bullets properties
+
+const enemyBullets = []; // Stores bullets in an array so they won't disappear
 
 // Create an array to store enemy instances
 const enemies = [];
@@ -78,6 +84,28 @@ function spawnEnemyWave(numEnemies) {
     }
     
     enemyWaves.push(wave); // Add wave to enemy waves queue
+}
+
+function enemyShoot(enemy) {
+    const bullet = new THREE.Mesh(geometry_enemy_bullet, material_enemy_bullet);
+    bullet.position.x = enemy.position.x;
+    bullet.position.y = enemy.position.y;
+    scene.add(bullet);
+    enemyBullets.push(bullet);
+}
+
+function handleEnemyShooting() {
+    enemies.forEach(enemy => {
+        if (Math.random() < 0.01) { // Adjusting the probability for how often enemies shoot
+            enemyShoot(enemy);
+        }
+    });
+}
+
+let points = 0; //variable to store points
+
+function updateScore() {
+    document.getElementById('score').textContent = `Points: ${points}`;
 }
 
 let enemyDirection = 1; // Enemy movement, 1 for moving right, -1 for moving left
@@ -138,8 +166,23 @@ function checkBulletEnemyCollision() {
                 bullets.splice(bullets.indexOf(bullet), 1);
                 // Remove enemy from the enemies array
                 enemies.splice(enemies.indexOf(enemy), 1);
+                points += 10; // increase score by 10 after shooting an enemy
+                updateScore(); // Update the score display
             }
         });
+    });
+}
+
+function checkBulletPlayerCollision() {
+    enemyBullets.forEach(bullet => {
+        if (bullet.position.distanceTo(player.position) < 0.9) { // Adjust collision distance
+            // Remove bullet from the scene
+            scene.remove(bullet);
+            // Remove bullet from the enemyBullets array
+            enemyBullets.splice(enemyBullets.indexOf(bullet), 1);
+            // Implement player hit logic here (e.g., reduce health, end game, etc.)
+            alert('Heheh, slow, ain\'t ya?'); // Example action on hit
+        }
     });
 }
 
@@ -178,6 +221,9 @@ function animate() {
 	checkBulletEnemyCollision();
 	checkWaveDefeated();
 
+    // Handle enemy shooting
+    handleEnemyShooting();
+
     // Updates bullet positions
     bullets.forEach(bullet => {
         bullet.position.y += 0.1; // Bullet speed
@@ -196,7 +242,18 @@ function animate() {
             bullets.splice(bullets.indexOf(bullet), 1); // Removes bullet from array when they are out from the screen
         }
     });
+    
+    // Update enemy bullet positions
+    enemyBullets.forEach(bullet => {
+        bullet.position.y -= 0.1; // Enemy bullet speed
+        if (bullet.position.y < -5) { // Removes bullets when they go out of the screen
+            scene.remove(bullet);
+            enemyBullets.splice(enemyBullets.indexOf(bullet), 1);
+        }
+    });
 
+    // Check for collisions between enemy bullets and the player
+    checkBulletPlayerCollision();
 	renderer.render( scene, camera );
 }
 
