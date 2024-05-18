@@ -121,27 +121,36 @@ function moveEnemies() {
     moveCounter++;
     if (moveCounter % 30 === 0) { // Update enemy position every 30 frames (adjust for desired speed)
         let changeDirection = false;
+        let reachedBoundary = false;
+
         enemies.forEach(enemy => {
             enemy.position.x += enemy_speed * enemyDirection;
             // Check if the enemy reached the left or right boundary
             if (enemy.position.x >= 5 || enemy.position.x <= -5) {
-                changeDirection = true;
+                reachedBoundary = true;
+            }        
+        // Check if the enemy is below the barrier
+        if (enemy.position.y <= 0.73) {
+            enemy.position.y = 0.73; // Set the y-position above the barrier
             }
         });
-
-        if (changeDirection) {
+        if (reachedBoundary) {
+            changeDirection = true;
             enemyDirection *= -1; // Reverse the direction
+
+            // Move all enemies down
             enemies.forEach(enemy => {
-                enemy.position.y -= 0.5; // Move all enemies down
+                enemy.position.y -= 0.5;
             });
         }
     }
 }
+
 // Function to check if current wave is defeated
 function checkWaveDefeated() {
     if (enemies.length === 0 && enemyWaves.length === 0) {
         setTimeout(() => {
-            alert("Oooh! This one's got spirit! You win!");
+            alert("This one's got spirit! You win!");
             resetGame();
         }, 0);
     } else if (enemies.length === 0 && enemyWaves.length > 0) {
@@ -221,7 +230,7 @@ function checkBulletPlayerCollision() {
             if (HP <= 0) {
                 updateHP();
                 setTimeout(() => { // Workaround to show 0 health points before the game end and restarts  
-                    alert('Heheh, slow, ain\'t ya? Try again, would ya?');
+                    alert('Slow, ain\'t ya? Try again, would ya?');
                     resetGame();
                 }, 0);
             }
