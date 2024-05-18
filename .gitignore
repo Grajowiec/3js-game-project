@@ -1177,3 +1177,5 @@ node_modules/.vite/deps/three.js
 node_modules/.vite/deps/_metadata.json
 node_modules/.vite/deps/three.js.map
 3js-game-project.code-workspace
+
+node_modules
