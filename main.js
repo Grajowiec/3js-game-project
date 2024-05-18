@@ -270,7 +270,6 @@ function animate() {
 				bullets.splice(bullets.indexOf(bullet), 1);
 			}
 		});
-
         if (bullet.position.y > 5) { // Removes bullets when they go out of the screen
             scene.remove(bullet);
             bullets.splice(bullets.indexOf(bullet), 1); // Removes bullet from array when they are out from the screen
