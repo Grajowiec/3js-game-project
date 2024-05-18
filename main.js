@@ -7,11 +7,9 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-camera.position.set(0,-4,5);
+camera.position.set(0,-3.5,5);
 
 camera.lookAt(0,0,0)
-
-//camera.position.z = 5;
 
 const geometry_barrier = new THREE.BoxGeometry(1.5,0.5);
 const material_barrier = new THREE.MeshBasicMaterial( { color: 0xaa0e3b } );
@@ -244,6 +242,8 @@ function keyboard(e) {
 
 addEventListener("keyup", keyboard); // Controls
 
+const barriers = [barrier, barrier2, barrier3, barrier4];
+
 function animate() {
 	requestAnimationFrame( animate );
 
@@ -261,11 +261,9 @@ function animate() {
     // Updates bullet positions
     bullets.forEach(bullet => {
         bullet.position.y += 0.1; // Bullet speed
-
-		// Checking for collision with barriers
-		const barriers = [barrier, barrier2, barrier3, barrier4];
+		// Checking for player bullets collision with barriers
 		barriers.forEach(barrier => {
-			if (bullet.position.distanceTo(barrier.position) < 0.98) { // Collision distance 
+			if (bullet.position.distanceTo(barrier.position) < 1.2) { // Collision distance 
 				scene.remove(bullet);
 				bullets.splice(bullets.indexOf(bullet), 1);
 			}
@@ -279,6 +277,13 @@ function animate() {
     // Update enemy bullet positions
     enemyBullets.forEach(bullet => {
         bullet.position.y -= 0.1; // Enemy bullet speed
+        // Checking for enemy bullets collision with barriers
+        barriers.forEach(barrier => {
+            if (bullet.position.distanceTo(barrier.position) < 1.2) { // Collision distance 
+                 scene.remove(bullet);
+                enemyBullets.splice(enemyBullets.indexOf(bullet), 1);
+                }
+            });
         if (bullet.position.y < -5) { // Removes bullets when they go out of the screen
             scene.remove(bullet);
             enemyBullets.splice(enemyBullets.indexOf(bullet), 1);
