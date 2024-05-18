@@ -263,13 +263,13 @@ function animate() {
         bullet.position.y += 0.1; // Bullet speed
 
 		// Checking for collision with barriers
-		// const barriers = [barrier, barrier2, barrier3, barrier4];
-		// barriers.forEach(barrier => {
-		// 	if (bullet.position.distanceTo(barrier.position) < 0.98) { // Collision distance 
-		// 		scene.remove(bullet);
-		// 		bullets.splice(bullets.indexOf(bullet), 1);
-		// 	}
-		// });
+		const barriers = [barrier, barrier2, barrier3, barrier4];
+		barriers.forEach(barrier => {
+			if (bullet.position.distanceTo(barrier.position) < 0.98) { // Collision distance 
+				scene.remove(bullet);
+				bullets.splice(bullets.indexOf(bullet), 1);
+			}
+		});
 
         if (bullet.position.y > 5) { // Removes bullets when they go out of the screen
             scene.remove(bullet);
