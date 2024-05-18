@@ -46,7 +46,6 @@ player.position.y = -2.85;
 
 const geometry_bullet = new THREE.SphereGeometry(0.12);
 const material_bullet = new THREE.MeshBasicMaterial( { color: 0xFF0000 } );
-//const bullet = new THREE.Mesh(geometry_bullet,material_bullet)
 //^^ Bullets properties
 
 const bullets = []; // Stores bullets in an array so they won't disappear
@@ -102,10 +101,18 @@ function handleEnemyShooting() {
     });
 }
 
-let points = 0; //variable to store points
+let points = 0; // Variable to store points
 
+// Shows current score on the screen
 function updateScore() {
-    document.getElementById('score').textContent = `Points: ${points}`;
+    document.getElementById('score').textContent = `Score: ${points}`;
+} 
+
+let HP = 3
+
+// Shows current number of HP on the screen
+function updateHP() {
+    document.getElementById('HP').textContent = `Health Points: ${HP}`;
 }
 
 let enemyDirection = 1; // Enemy movement, 1 for moving right, -1 for moving left
@@ -173,6 +180,31 @@ function checkBulletEnemyCollision() {
     });
 }
 
+function resetGame() {
+    // Reset game state
+    points = 0;
+    HP = 3;
+    updateScore();
+    updateHP();
+
+    // Clear arrays
+    bullets.forEach(bullet => scene.remove(bullet));
+    enemyBullets.forEach(bullet => scene.remove(bullet));
+    enemies.forEach(enemy => scene.remove(enemy));
+    enemyWaves.forEach(wave => wave.forEach(enemy => scene.remove(enemy)));
+
+    bullets.length = 0;
+    enemyBullets.length = 0;
+    enemies.length = 0;
+    enemyWaves.length = 0;
+
+    // Reset player position
+    player.position.x = 0;
+
+    // Spawn initial enemy wave
+    spawnEnemyWave(4);
+}
+
 function checkBulletPlayerCollision() {
     enemyBullets.forEach(bullet => {
         if (bullet.position.distanceTo(player.position) < 0.9) { // Adjust collision distance
@@ -180,8 +212,16 @@ function checkBulletPlayerCollision() {
             scene.remove(bullet);
             // Remove bullet from the enemyBullets array
             enemyBullets.splice(enemyBullets.indexOf(bullet), 1);
-            // Implement player hit logic here (e.g., reduce health, end game, etc.)
-            alert('Heheh, slow, ain\'t ya?'); // Example action on hit
+            // Decrement HP and check for game over
+            HP--;
+            updateHP();
+            if (HP <= 0) {
+                updateHP();
+                setTimeout(() => { // Workaround to show 0 health points before the game end and restarts  
+                    alert('Heheh, slow, ain\'t ya? Try again, would ya?');
+                    resetGame();
+                }, 0);
+            }
         }
     });
 }
@@ -191,16 +231,10 @@ function keyboard(e) {
 		case 37: // Left
 			player.position.x -= 0.5;
 			break;
-/*		case 38: // Up
-			player.position.y += 0.1;
-			break;
-*/		case 39: // Right
+		case 39: // Right
 			player.position.x += 0.5;
 			break;
-/*		case 40: // Down
-			player.position.y -= 0.1;
-			break;
-*/		case 32: // Spacebar to shoot
+		case 32: // Spacebar to shoot
 			shoot();
 			break;
 		default:
