@@ -139,7 +139,12 @@ function moveEnemies() {
 }
 // Function to check if current wave is defeated
 function checkWaveDefeated() {
-    if (enemies.length === 0 && enemyWaves.length > 0) {
+    if (enemies.length === 0 && enemyWaves.length === 0) {
+        setTimeout(() => {
+            alert("Oooh! This one's got spirit! You win!");
+            resetGame();
+        }, 0);
+    } else if (enemies.length === 0 && enemyWaves.length > 0) {
         // Move next wave into the scene
         const nextWave = enemyWaves.shift(); // Remove first wave from queue
         nextWave.forEach(enemy => {
@@ -279,7 +284,7 @@ function animate() {
         bullet.position.y -= 0.1; // Enemy bullet speed
         // Checking for enemy bullets collision with barriers
         barriers.forEach(barrier => {
-            if (bullet.position.distanceTo(barrier.position) < 1.2) { // Collision distance 
+            if (bullet.position.distanceTo(barrier.position) < 0.98) { // Collision distance 
                  scene.remove(bullet);
                 enemyBullets.splice(enemyBullets.indexOf(bullet), 1);
                 }
