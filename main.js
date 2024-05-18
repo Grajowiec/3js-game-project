@@ -7,11 +7,9 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-camera.position.set(0,-4,5);
+camera.position.set(0,-3.5,5);
 
 camera.lookAt(0,0,0)
-
-//camera.position.z = 5;
 
 const geometry_barrier = new THREE.BoxGeometry(1.5,0.5);
 const material_barrier = new THREE.MeshBasicMaterial( { color: 0xaa0e3b } );
@@ -123,25 +121,39 @@ function moveEnemies() {
     moveCounter++;
     if (moveCounter % 30 === 0) { // Update enemy position every 30 frames (adjust for desired speed)
         let changeDirection = false;
+        let reachedBoundary = false;
+
         enemies.forEach(enemy => {
             enemy.position.x += enemy_speed * enemyDirection;
             // Check if the enemy reached the left or right boundary
             if (enemy.position.x >= 5 || enemy.position.x <= -5) {
-                changeDirection = true;
+                reachedBoundary = true;
+            }        
+        // Check if the enemy is below the barrier
+        if (enemy.position.y <= 0.73) {
+            enemy.position.y = 0.73; // Set the y-position above the barrier
             }
         });
-
-        if (changeDirection) {
+        if (reachedBoundary) {
+            changeDirection = true;
             enemyDirection *= -1; // Reverse the direction
+
+            // Move all enemies down
             enemies.forEach(enemy => {
-                enemy.position.y -= 0.5; // Move all enemies down
+                enemy.position.y -= 0.5;
             });
         }
     }
 }
+
 // Function to check if current wave is defeated
 function checkWaveDefeated() {
-    if (enemies.length === 0 && enemyWaves.length > 0) {
+    if (enemies.length === 0 && enemyWaves.length === 0) {
+        setTimeout(() => {
+            alert("This one's got spirit! You win!");
+            resetGame();
+        }, 0);
+    } else if (enemies.length === 0 && enemyWaves.length > 0) {
         // Move next wave into the scene
         const nextWave = enemyWaves.shift(); // Remove first wave from queue
         nextWave.forEach(enemy => {
@@ -218,7 +230,7 @@ function checkBulletPlayerCollision() {
             if (HP <= 0) {
                 updateHP();
                 setTimeout(() => { // Workaround to show 0 health points before the game end and restarts  
-                    alert('Heheh, slow, ain\'t ya? Try again, would ya?');
+                    alert('Slow, ain\'t ya? Try again, would ya?');
                     resetGame();
                 }, 0);
             }
@@ -244,6 +256,8 @@ function keyboard(e) {
 
 addEventListener("keyup", keyboard); // Controls
 
+const barriers = [barrier, barrier2, barrier3, barrier4];
+
 function animate() {
 	requestAnimationFrame( animate );
 
@@ -261,11 +275,9 @@ function animate() {
     // Updates bullet positions
     bullets.forEach(bullet => {
         bullet.position.y += 0.1; // Bullet speed
-
-		// Checking for collision with barriers
-		const barriers = [barrier, barrier2, barrier3, barrier4];
+		// Checking for player bullets collision with barriers
 		barriers.forEach(barrier => {
-			if (bullet.position.distanceTo(barrier.position) < 0.98) { // Collision distance 
+			if (bullet.position.distanceTo(barrier.position) < 1.2) { // Collision distance 
 				scene.remove(bullet);
 				bullets.splice(bullets.indexOf(bullet), 1);
 			}
@@ -279,6 +291,13 @@ function animate() {
     // Update enemy bullet positions
     enemyBullets.forEach(bullet => {
         bullet.position.y -= 0.1; // Enemy bullet speed
+        // Checking for enemy bullets collision with barriers
+        barriers.forEach(barrier => {
+            if (bullet.position.distanceTo(barrier.position) < 0.98) { // Collision distance 
+                 scene.remove(bullet);
+                enemyBullets.splice(enemyBullets.indexOf(bullet), 1);
+                }
+            });
         if (bullet.position.y < -5) { // Removes bullets when they go out of the screen
             scene.remove(bullet);
             enemyBullets.splice(enemyBullets.indexOf(bullet), 1);
