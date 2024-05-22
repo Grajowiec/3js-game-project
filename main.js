@@ -52,8 +52,6 @@ const geometry_enemy = new THREE.BoxGeometry();
 const material_enemy = new THREE.MeshBasicMaterial( { color: 0x00FF00 } );
 const enemy = new THREE.Mesh(geometry_enemy,material_enemy);
 const enemy_speed = 0.1;
-enemy.position.x = 0;
-enemy.position.y = 3;
 //^^  Enemy properties
 
 const geometry_enemy_bullet = new THREE.SphereGeometry(0.12);
@@ -76,7 +74,7 @@ function spawnEnemyWave(numEnemies) {
     for (let i = 0; i < numEnemies; i++) {
         const enemy = new THREE.Mesh(geometry_enemy, material_enemy);
         enemy.position.x = (i - (numEnemies - 1) / 2) * spacing; // Spread enemies evenly
-        enemy.position.y = 3; // Initial y position
+        enemy.position.y = 7; // Initial y position
         wave.push(enemy);
     }
     
@@ -165,6 +163,7 @@ function checkWaveDefeated() {
 
 // Initial enemy wave
 spawnEnemyWave(4);
+spawnEnemyWave(4);
 
 function shoot() {
 	const bullet = new THREE.Mesh(geometry_bullet,material_bullet)
@@ -214,6 +213,7 @@ function resetGame() {
     player.position.x = 0;
 
     // Spawn initial enemy wave
+    spawnEnemyWave(4);
     spawnEnemyWave(4);
 }
 
@@ -282,7 +282,7 @@ function animate() {
 				bullets.splice(bullets.indexOf(bullet), 1);
 			}
 		});
-        if (bullet.position.y > 5) { // Removes bullets when they go out of the screen
+        if (bullet.position.y > 12.5) { // Removes bullets when they go out of the screen
             scene.remove(bullet);
             bullets.splice(bullets.indexOf(bullet), 1); // Removes bullet from array when they are out from the screen
         }
