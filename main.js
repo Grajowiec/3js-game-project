@@ -163,6 +163,7 @@ function checkWaveDefeated() {
 
 // Initial enemy wave
 spawnEnemyWave(4);
+spawnEnemyWave(4);
 
 function shoot() {
 	const bullet = new THREE.Mesh(geometry_bullet,material_bullet)
@@ -212,6 +213,7 @@ function resetGame() {
     player.position.x = 0;
 
     // Spawn initial enemy wave
+    spawnEnemyWave(4);
     spawnEnemyWave(4);
 }
 
